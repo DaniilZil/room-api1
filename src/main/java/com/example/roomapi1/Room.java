@@ -1,4 +1,4 @@
-package com.example.roomapi;
+package com.example.roomapi1;
 
 public class Room {
     private Long id;
