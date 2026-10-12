@@ -1,11 +1,17 @@
 package com.example.roomapi1;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
 public class Room {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private int capacity;
 
-    public Room() {
+    protected Room() {
     }
 
     public Room(Long id, String name, int capacity)

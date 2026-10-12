@@ -21,7 +21,7 @@ public class RoomController {
             @RequestParam(required = false) Integer minCapacity,
             @RequestParam(required = false) String keyword) {
 
-        return roomService.findAll(minCapacity, keyword);
+        return roomService.search(keyword, minCapacity);
     }
 
 
@@ -88,13 +88,11 @@ public class RoomController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRoom(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id
+    ) {
 
-        boolean deleted = roomService.delete(id);
-
-        if (!deleted) {
-            return ResponseEntity.notFound().build();
-        }
+        roomService.delete(id);
 
         return ResponseEntity.noContent().build();
     }

@@ -1,11 +1,19 @@
 package com.example.roomapi1;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.List;
 
-public interface RoomRepository {
-    List<Room> findAll();
-    Room findById(Long id);
-    Room save(Room room);
-    Room update(Long id, Room room);
-    boolean deleteById(Long id);
+public interface RoomRepository
+    extends JpaRepository<Room, Long> {
+
+    List<Room> findByNameContainingIgnoreCase(String name);
+
+    List<Room> findByCapacityGreaterThanEqual(Integer minCapacity);
+
+    List<Room> findByNameContainingIgnoreCaseAndCapacityGreaterThanEqual(
+            String name,
+            Integer minCapacity
+    );
 }
+

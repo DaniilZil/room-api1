@@ -1,5 +1,7 @@
 package com.example.roomapi1;
 
+import org.hibernate.ObjectNotFoundException;
+import org.hibernate.annotations.NotFound;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -13,31 +15,39 @@ public class RoomService {
     public RoomService(RoomRepository roomRepository) {
         this.roomRepository = roomRepository;
     }
-    public List<Room> findAll(Integer minCapacity, String keyword) {
+    public List<Room> search(String name, Integer minCapacity) {
 
-        List<Room> rooms = roomRepository.findAll();
-        List<Room> result = new ArrayList<>();
-
-        for (Room room : rooms) {
-
-            if (minCapacity != null && room.getCapacity() < minCapacity) {
-                continue;
-            }
-
-            if (keyword != null && !keyword.isBlank()) {
-                if (!room.getName().toLowerCase().contains(keyword.toLowerCase())) {
-                    continue;
-                }
-            }
-
-            result.add(room);
+        if (name != null && name.isBlank()) {
+            name = null;
         }
 
-        return result;
+
+
+        // name + minCapacity
+        if (name != null && minCapacity != null) {
+            return roomRepository
+                    .findByNameContainingIgnoreCaseAndCapacityGreaterThanEqual(
+                            name,
+                            minCapacity
+                    );
+        }
+
+        // only name
+        if (name != null) {
+            return roomRepository.findByNameContainingIgnoreCase(name);
+        }
+
+        // only capacity
+        if (minCapacity != null) {
+            return roomRepository.findByCapacityGreaterThanEqual(minCapacity);
+        }
+
+        // no search parameters
+        return roomRepository.findAll();
     }
 
     public Room findOne(Long id) {
-        return roomRepository.findById(id);
+        return roomRepository.findById(id).orElseThrow();
     }
 
     public Room create(Room room) {
@@ -51,11 +61,23 @@ public class RoomService {
 
         validateCapacity(room.getCapacity());
 
-        return roomRepository.update(id, room);
+        Room existingRoom = roomRepository.findById(id)
+                .orElseThrow();
+
+        existingRoom.setName(room.getName());
+        existingRoom.setCapacity(room.getCapacity());
+
+        return roomRepository.save(existingRoom);
     }
 
-    public boolean delete(Long id) {
-        return roomRepository.deleteById(id);
+    public void delete(Long id) {
+        Room room = roomRepository.findById(id)
+                .orElseThrow();
+        roomRepository.delete(room);
+    }
+
+    public long count() {
+        return roomRepository.count();
     }
 
     private void validateCapacity(int capacity) {
